@@ -13,6 +13,7 @@ router.get('/register', (req, res) => res.render('register'))
 router.post('/register', (req, res) => {
     const { name, email, password, password2 } = req.body
     //validation
+    console.log('bjhggjg')
 })
 
 module.exports = router
