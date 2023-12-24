@@ -1,12 +1,12 @@
 const express = require('express')
 const expressLayouts = require('express-ejs-layouts')
+
 const app = express()
 
 //MiddleWare
 //Ejs
-
 app.use(expressLayouts)
-app.set('view-engine', 'ejs')
+app.set('view engine', 'ejs')
 
 //Routes
 app.use('/', require('./routes/index'))
