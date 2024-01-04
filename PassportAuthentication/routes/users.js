@@ -1,6 +1,9 @@
 const express = require('express')
-
 const router = express.Router()
+const bcrypt = require('bcryptjs')
+
+//User modal
+const User = require('../modals/User')
 
 //Login
 router.get('/login', (req, res) => res.render('login'))
@@ -40,7 +43,38 @@ router.post('/register', (req, res) => {
             password2,
         })
     } else {
-        res.send('pass')
+        //validation passed
+        User.findOne({ email: email }).then(user => {
+            if (user) {
+                errors.push({ msg: 'Email already exists' })
+                res.render('register', {
+                    errors,
+                    name,
+                    email,
+                    password,
+                    password2,
+                })
+            } else {
+                const newUser = new User({
+                    name,
+                    email,
+                    password,
+                })
+                //Hash Password
+                bcrypt.genSalt(10, (err, salt) => {
+                    if (err) throw err
+                    bcrypt.hash(newUser.password, salt, (err, hash) => {
+                        if (err) throw err
+                        newUser.password = hash
+                        //save user
+                        newUser
+                            .save()
+                            .then(user => res.redirect('/'))
+                            .catch(err => console.log(err))
+                    })
+                })
+            }
+        })
     }
 })
 
