@@ -1,6 +1,7 @@
 const LocalStrategy = require('passport-local').Strategy
 const mongoose = require('mongoose') //here login is used so mongoose
 const bcrypt = require('bcryptjs') //to hash password to decrypt password
+const jwt = require('jsonwebtoken')
 
 //Local User Modal
 const User = require('../modals/User')
@@ -24,6 +25,14 @@ module.exports = function (passport) {
                             (err, isMatch) => {
                                 if (err) throw err
                                 if (isMatch) {
+                                    jwt.sign(
+                                        { user },
+                                        'secrekkey',
+                                        { expiresIn: '30s' },
+                                        (err, token) => {
+                                            res.json({ access_token: token })
+                                        }
+                                    )
                                     return done(null, user)
                                 } else {
                                     return done(null, false, {
