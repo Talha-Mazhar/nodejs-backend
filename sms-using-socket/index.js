@@ -3,18 +3,22 @@ const express = require('express')
 const ejs = require('ejs')
 const { Vonage } = require('@vonage/server-sdk')
 const socketio = require('socket.io')
+const cors = require('cors')
 
 //init nexmo
 const vonage = new Vonage(
     {
         apiKey: '9a867917',
         apiSecret: 'WcB2RfCakl2Ze01i',
-    },
-    { debug: true }
+    }
+    // { debug: true }
 )
 
 //init app
 const app = express()
+
+// Use CORS middleware
+app.use(cors())
 
 //middleware for ejs
 app.set('view engine', 'html')
@@ -34,10 +38,39 @@ app.get('/', (req, res) => {
 
 //Catch form submit
 app.post('/', (req, res) => {
-    // res.send(req.body)
-    // console.log(req.body)
+    const { number, text } = req.body
+
+    vonage.messages.send(
+        'Vonage APIs',
+        number,
+        text,
+        { type: 'unicode' },
+        (err, responseData) => {
+            if (err) {
+                // console.log(err)
+            } else {
+                // console.log(responseData)
+                console.dir(responseData)
+                const data = {
+                    id: responseData.messages[0]['message-id'],
+                    number: responseData.messages[0]['to'],
+                }
+                io.emit('smsStatus', data)
+            }
+        }
+    )
 })
 
 const PORT = process.env.PORT || 5000
 
-app.listen(PORT, console.log(`Server started on Port ${PORT}`))
+const server = app.listen(PORT, console.log(`Server started on Port ${PORT}`))
+
+//connect to socket
+
+const io = socketio(server)
+io.on('connection', socket => {
+    console.log('connected')
+    io.on('disconnect', () => {
+        console.log('disconnect')
+    })
+})
