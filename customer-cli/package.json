@@ -1,0 +1,19 @@
+{
+    "name": "customer-cli",
+    "version": "1.0.0",
+    "description": "Customer management CLI",
+    "main": "index.js",
+    "preferGlobal": true,
+    "bin": "./commander.js",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "commander": "^11.1.0",
+        "inquirer": "^4.0.0",
+        "mongoose": "^8.1.0"
+    }
+}
