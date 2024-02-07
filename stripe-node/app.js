@@ -2,12 +2,13 @@ const express = require('express')
 const { engine } = require('express-handlebars')
 const bodyParser = require('body-parser')
 const dotenv = require('dotenv')
-
+const keys = require('./config/keys')
+const { stripePublishableKey } = require('./config/keys_dev')
 const app = express()
 
 dotenv.config()
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+const stripe = require('stripe')(keys.stripeSecretKey)
 
 //HandleBars MiddleWare
 app.engine('handlebars', engine({ defaultLayout: 'main' }))
