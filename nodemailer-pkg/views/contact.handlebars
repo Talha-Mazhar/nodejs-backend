@@ -1,0 +1,42 @@
+<div class='container'>
+    <h1 class='brand'><span>NodeMailer</span> App</h1>
+    <div class='wrapper animate__animated animate__bounceInLeft'>
+        <div class='company-info'>
+            <h3> NodeMailer Form</h3>
+            <ul>
+                <li><i class='fa fa-road'></i> Sajad Colont Lahore, PK</li>
+                <li><i class='fa fa-phone'></i> (+92) 320-0000000</li>
+                <li><i class='fa fa-envelope'></i> test@acme.test</li>
+            </ul>
+        </div>
+        <div class='contact'>
+            <h3>Email Us</h3>
+            {{msg}}
+            <form method='POST' action='send'>
+                <p>
+                    <label>Name</label>
+                    <input type='text' name='name' />
+                </p>
+                <p>
+                    <label>Company</label>
+                    <input type='text' name='company' />
+                </p>
+                <p>
+                    <label>Email Address</label>
+                    <input type='email' name='email' />
+                </p>
+                <p>
+                    <label>Phone Number</label>
+                    <input type='text' name='phone' />
+                </p>
+                <p class='full'>
+                    <label>Message</label>
+                    <textarea name='message' rows='5'></textarea>
+                </p>
+                <p class='full'>
+                    <button type='submit'>Submit</button>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
