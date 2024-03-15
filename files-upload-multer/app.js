@@ -19,28 +19,49 @@ app.use(bodyParser.json())
 app.use(methodOverride('_method'))
 app.set('view engine', 'ejs')
 
-mongoose
-    .connect(db)
-    .then(() => console.log('MongoDB connected.'))
-    .catch(err => console.log(err))
+// connection
+const conn = mongoose.createConnection(db, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
 
-// Create mongo connection
-const conn = mongoose.connection
-// Init gfs
+// init gfs
 let gfs
 conn.once('open', () => {
-    gfs = Grid(conn.db, mongoose.mongo)
-    gfs.collection('uploads')
+    // init stream
+    gfs = new mongoose.mongo.GridFSBucket(conn.db, {
+        bucketName: 'uploads',
+    })
 })
 
-const storage = multer.memoryStorage()
-const upload = multer({ storage: storage })
+// Set up GridFS storage engine
+const storage = new GridFsStorage({
+    url: db,
+    file: (req, file) => {
+        return new Promise((resolve, reject) => {
+            crypto.randomBytes(16, (err, buf) => {
+                if (err) {
+                    return reject(err)
+                }
+                const filename =
+                    buf.toString('hex') + path.extname(file.originalname)
+                const fileInfo = {
+                    filename: filename,
+                    bucketName: 'uploads',
+                }
+                resolve(fileInfo)
+            })
+        })
+    },
+})
+
+const upload = multer({ storage })
+// Use multer as a middleware to upload the file
+app.post('/upload', upload.single('file'), (req, res) => {
+    res.json({ file: req.file }) // Send the fileId in the response
+})
 
 app.get('/', (req, res) => res.render('index'))
-
-app.post('/upload', upload.single('file'), (req, res) => {
-    res.json({ file: req.file })
-})
 
 const port = 5000
 
