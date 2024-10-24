@@ -1,9 +1,9 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const crypto = require('crypto')
+// const crypto = require('crypto')
 const path = require('path')
-const Crypto = require('crypto')
 const mongoose = require('mongoose')
+
 const multer = require('multer')
 const { GridFsStorage } = require('multer-gridfs-storage')
 const Grid = require('gridfs-stream')
@@ -19,43 +19,34 @@ app.use(bodyParser.json())
 app.use(methodOverride('_method'))
 app.set('view engine', 'ejs')
 
-// connection
-const conn = mongoose.createConnection(db, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+var gfs
+async function connectDB() {
+    try {
+        await mongoose.connect(db)
+        console.log('MongoDB connected.')
+        Grid.mongo = mongoose.mongo
+        gfs = Grid(mongoose.connection.db) // Create gfs after connection is established
+    } catch (err) {
+        console.error(err)
+    }
+}
 
-// init gfs
-let gfs
-conn.once('open', () => {
-    // init stream
-    gfs = new mongoose.mongo.GridFSBucket(conn.db, {
-        bucketName: 'uploads',
-    })
-})
+connectDB()
 
-// Set up GridFS storage engine
-const storage = new GridFsStorage({
-    url: db,
+// set up connection to db for file storage
+const storage = GridFsStorage({
+    db: mongoose.connection.db,
     file: (req, file) => {
-        return new Promise((resolve, reject) => {
-            crypto.randomBytes(16, (err, buf) => {
-                if (err) {
-                    return reject(err)
-                }
-                const filename =
-                    buf.toString('hex') + path.extname(file.originalname)
-                const fileInfo = {
-                    filename: filename,
-                    bucketName: 'uploads',
-                }
-                resolve(fileInfo)
-            })
-        })
+        return {
+            filename: file.originalname,
+        }
     },
 })
 
-const upload = multer({ storage })
+// sets file input to single file
+const upload = multer({ storage: storage })
+
+// const upload = multer({ storage })
 // Use multer as a middleware to upload the file
 app.post('/upload', upload.single('file'), (req, res) => {
     res.json({ file: req.file }) // Send the fileId in the response
